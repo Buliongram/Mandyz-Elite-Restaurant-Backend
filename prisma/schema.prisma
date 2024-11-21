@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  order_id      String       @unique
+  ownerId       Int
+  user          User         @relation(fields: [ownerId], references: [user_id])
+  checkoutType  String       @db.VarChar(20)
+  orderData     String       @db.LongText
+  status        order_status @default(Pending)
+  paymentMethod String       @db.VarChar(50)
+  createdAt     DateTime?    @default(now()) @db.Timestamp(0)
+  updatedAt     DateTime?    @default(now()) @db.Timestamp(0)
+}
+
+model User {
+  user_id   Int         @id @default(autoincrement())
+  firstname String      @db.VarChar(20)
+  lastname  String      @db.VarChar(20)
+  email     String      @db.VarChar(50)
+  password  String      @db.VarChar(100)
+  status    user_status @default(Pending)
+  createdAt DateTime?   @default(now()) @db.Timestamp(0)
+  updatedAt DateTime?   @default(now()) @db.Timestamp(0)
+
+  // Relation field to link with orders
+  orders Order[]
+}
+
+model Address {
+  addressId      Int       @id @default(autoincrement())
+  ownerId        String    @unique
+  firstname      String?   @db.VarChar(20)
+  lastname       String?   @db.VarChar(20)
+  primaryPhone   String?   @db.VarChar(20)
+  secondaryPhone String?   @db.VarChar(20)
+  region         String?   @db.VarChar(20)
+  address        String?   @db.VarChar(500)
+  information    String?   @db.VarChar(500)
+  createdAt      DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt      DateTime? @default(now()) @db.Timestamp(0)
+}
+
+enum order_status {
+  Pending
+  Confirmed
+  Delivered
+  Cancelled
+}
+
+enum user_status {
+  Pending
+  Active
+  Suspended
+}
